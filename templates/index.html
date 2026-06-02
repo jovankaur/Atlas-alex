@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Mauzy Realty — AI Assistant</title>
+<title>Atlas AI — Real Estate Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -34,22 +34,22 @@ header p{font-size:0.75rem;color:#8a9bb0;margin-top:2px}
 .suggestions{display:flex;flex-wrap:wrap;gap:0.5rem;padding:0 1.5rem 1rem;max-width:800px;width:100%;margin:0 auto}
 .suggestion{background:#1a2535;border:1px solid #2a3545;color:#c9a84c;padding:0.4rem 0.9rem;border-radius:99px;font-size:0.8rem;cursor:pointer;transition:all 0.2s;white-space:nowrap}
 .suggestion:hover{background:#c9a84c;color:#000}
-.input-area{background:#1a2535;border-top:1px solid #2a3545;padding:1rem 1.5rem;display:flex;gap:0.75rem;max-width:800px;width:100%;margin:0 auto}
-.input-area input{flex:1;background:#0f1923;border:1.5px solid #2a3545;border-radius:12px;padding:0.75rem 1rem;color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s}
-.input-area input:focus{border-color:#c9a84c}
-.input-area input::placeholder{color:#4a5568}
+.input-wrap{background:#1a2535;border-top:1px solid #2a3545;padding:1rem 1.5rem;max-width:800px;width:100%;margin:0 auto}
+.input-row{display:flex;gap:0.75rem}
+.input-row input{flex:1;background:#0f1923;border:1.5px solid #2a3545;border-radius:12px;padding:0.75rem 1rem;color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s}
+.input-row input:focus{border-color:#c9a84c}
+.input-row input::placeholder{color:#4a5568}
 .send-btn{background:linear-gradient(135deg,#c9a84c,#f5d280);border:none;border-radius:12px;padding:0.75rem 1.25rem;color:#000;font-weight:700;cursor:pointer;font-size:0.9rem;transition:transform 0.15s}
 .send-btn:hover{transform:scale(1.05)}
-.send-btn:active{transform:scale(0.97)}
-footer{text-align:center;padding:0.75rem;color:#2a3545;font-size:0.7rem;background:#0f1923}
+footer{text-align:center;padding:0.75rem;color:#2a3545;font-size:0.7rem}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">M</div>
+  <div class="logo">A</div>
   <div>
-    <h1>Mauzy Realty AI Assistant</h1>
-    <p>Powered by Atlas AI • Dallas Real Estate Experts</p>
+    <h1>Atlas AI — Real Estate Assistant</h1>
+    <p>Powered by Atlas AI • Available 24/7</p>
   </div>
   <div class="status"><div class="dot"></div>Online 24/7</div>
 </header>
@@ -57,7 +57,7 @@ footer{text-align:center;padding:0.75rem;color:#2a3545;font-size:0.7rem;backgrou
 <div class="chat-container" id="chatContainer">
   <div class="message alex">
     <div class="avatar alex">A</div>
-    <div class="bubble">Hi there! I'm Alex, your personal real estate assistant at Mauzy Realty. 👋<br><br>Charles Mauzy has been helping Dallas families buy and sell homes for over 26 years — and I'm here to help you 24/7.<br><br>Are you looking to <strong>buy</strong>, <strong>sell</strong>, <strong>rent</strong>, <strong>relocate</strong>, or <strong>invest</strong> in the Dallas area?</div>
+    <div class="bubble">Hi there! I'm Alex, your AI real estate assistant. 👋<br><br>I'm here to help you 24/7 with buying, selling, renting, relocating or investing in real estate.<br><br>What brings you here today?</div>
   </div>
   <div class="typing" id="typing">
     <div class="avatar alex">A</div>
@@ -68,21 +68,20 @@ footer{text-align:center;padding:0.75rem;color:#2a3545;font-size:0.7rem;backgrou
 <div class="suggestions" id="suggestions">
   <button class="suggestion" onclick="sendSuggestion('I want to buy a home')">🏠 Buy a home</button>
   <button class="suggestion" onclick="sendSuggestion('I want to sell my home')">💰 Sell my home</button>
-  <button class="suggestion" onclick="sendSuggestion('I am relocating to Dallas')">✈️ Relocating</button>
+  <button class="suggestion" onclick="sendSuggestion('I am relocating')">✈️ Relocating</button>
   <button class="suggestion" onclick="sendSuggestion('I want to invest in property')">📈 Invest</button>
   <button class="suggestion" onclick="sendSuggestion('Show me luxury homes')">💎 Luxury homes</button>
   <button class="suggestion" onclick="sendSuggestion('I am a first time buyer')">🔑 First time buyer</button>
-  <button class="suggestion" onclick="sendSuggestion('I have a VA loan')">🎖️ VA/Military</button>
 </div>
 
-<div style="max-width:800px;width:100%;margin:0 auto;padding:0 1.5rem 1rem">
-  <div class="input-area" style="padding:0;border:none;background:transparent">
-    <input type="text" id="userInput" placeholder="Ask Alex anything about Dallas real estate..." onkeydown="if(event.key==='Enter')sendMessage()"/>
+<div class="input-wrap">
+  <div class="input-row">
+    <input type="text" id="userInput" placeholder="Ask Alex anything about real estate..." onkeydown="if(event.key==='Enter')sendMessage()"/>
     <button class="send-btn" onclick="sendMessage()">Send →</button>
   </div>
 </div>
 
-<footer>Powered by Atlas AI • Available 24/7 • Mauzy Realty © 2025</footer>
+<footer>Powered by Atlas AI • Available 24/7 • © 2026</footer>
 
 <script>
 const sessionId = Math.random().toString(36).substr(2,9);
@@ -114,7 +113,7 @@ async function sendMessage(){
     addMessage(data.response, 'alex');
   }catch(e){
     showTyping(false);
-    addMessage('I apologize, I am having a brief technical issue. Please try again in a moment.', 'alex');
+    addMessage('Sorry, I had a brief issue. Please try again.', 'alex');
   }
   isTyping = false;
 }
