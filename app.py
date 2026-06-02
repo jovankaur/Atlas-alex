@@ -1,60 +1,69 @@
 from flask import Flask, render_template, request, jsonify
 import os
 import urllib.request
+import urllib.error
 import json
 
 app = Flask(__name__)
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
-SYSTEM_PROMPT = """You are Alex, the professional AI real estate assistant for Mauzy Realty, led by Charles Mauzy — a native Dallasite and one of Dallas's most trusted real estate brokers with over 26 years of experience and 993 total sales.
+SYSTEM_PROMPT = """You are Alex, a professional AI real estate assistant powered by Atlas AI. You help website visitors 24/7 with all real estate needs.
 
-ABOUT MAUZY REALTY:
-- Founded in 2004 by Charles Mauzy
-- Specializes in Dallas and DFW area residential real estate
-- Services: Buying, Selling, Relocating, Investing, Luxury Homes, New Construction
-- Website: mauzyrealty.com
-- Average sale price: $529,000
-- Price range: $125K to $2.1M
+You handle:
+- Buying a home
+- Selling a home
+- Renting a property
+- Relocating to a new city
+- Investment properties
+- Luxury homes
+- First time buyers
+- New construction
 
-YOUR JOB:
+Your job:
 1. Greet warmly and ask if they are buying, selling, renting, relocating or investing
-2. Ask qualifying questions — budget, timeline, location, bedrooms, first time buyer, VA eligible
-3. Score leads as Hot, Warm or Cold
-4. Know these Dallas neighborhoods — Highland Park, Uptown, Lake Highlands, Bishop Arts, Frisco, McKinney, Plano
-5. Know these listings:
-   - 4521 Bordeaux Ave, Highland Park — 4bed/4bath — $1,250,000
-   - 2847 Fairmount St, Uptown — 2bed/2bath — $485,000
-   - 6234 Royalton Dr, Lake Highlands — 3bed/2bath — $425,000
-   - 891 W 10th St, Bishop Arts — 3bed/2bath — $520,000
-   - 15632 Preston Rd, Frisco — 4bed/3bath — $675,000
-6. Always collect name, email and phone before ending
-7. Book appointments with Charles
-8. Respond in whatever language the visitor writes in
-9. Never say I don't know — always be helpful
-10. Handle objections naturally"""
+2. Ask smart qualifying questions — budget, timeline, location, property type, bedrooms
+3. Score every lead as Hot, Warm or Cold based on urgency
+4. Collect name, email and phone naturally in conversation
+5. Book appointments by asking preferred date and time
+6. Respond in whatever language the visitor writes in automatically
+7. Never say you don't know — always give a helpful answer
+8. Handle objections naturally — if they say just browsing, keep them engaged
+9. Be warm, human and professional — never robotic or pushy
+10. End every conversation with contact info collected and a lead summary
+
+Remember: You represent a professional real estate agency. Every lead matters."""
 
 conversation_history = {}
 
-import google.generativeai as genai
+def ask_gemini(history):
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
 
+    contents = []
+    for msg in history:
+        contents.append({
+            "role": msg["role"],
+            "parts": [{"text": msg["content"]}]
+        })
 
-# Make sure this is called once at the top of your app.py
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-1.5-flash')
+    payload = json.dumps({"contents": contents}).encode("utf-8")
 
-def ask_gemini(messages):
-    # Convert your chat history to the format Gemini expects
-    # 'role' mapping: 'user' stays 'user', others become 'model'
-    chat = model.start_chat(history=[])
-    
-    # Send the latest message (or the whole history if needed)
-    # This replaces all your manual urllib/json/request logic
-    user_msg = messages[-1]["content"] 
-    response = chat.send_message(user_msg)
-    
-    return response.text
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
 
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8")
+        return f"HTTP Error {e.code}: {body}"
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 @app.route("/")
 def index():
@@ -69,7 +78,7 @@ def chat():
     if session_id not in conversation_history:
         conversation_history[session_id] = [
             {"role": "user", "content": SYSTEM_PROMPT},
-            {"role": "model", "content": "Understood. I am Alex, ready to help Dallas home buyers, sellers and investors 24/7 for Mauzy Realty."}
+            {"role": "model", "content": "Understood. I am Alex, a professional real estate AI assistant. Ready to help visitors 24/7."}
         ]
 
     conversation_history[session_id].append({
@@ -77,15 +86,15 @@ def chat():
         "content": user_message
     })
 
-    response_text = ask_gemini(conversation_history[session_id])
+    reply = ask_gemini(conversation_history[session_id])
 
     conversation_history[session_id].append({
         "role": "model",
-        "content": response_text
+        "content": reply
     })
 
-    return jsonify({"response": response_text})
+    return jsonify({"response": reply})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)
