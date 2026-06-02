@@ -36,23 +36,25 @@ YOUR JOB:
 
 conversation_history = {}
 
+import google.generativeai as genai
+
+
+# Make sure this is called once at the top of your app.py
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+model = genai.GenerativeModel('gemini-1.5-flash')
+
 def ask_gemini(messages):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+    # Convert your chat history to the format Gemini expects
+    # 'role' mapping: 'user' stays 'user', others become 'model'
+    chat = model.start_chat(history=[])
     
-    contents = []
-    for msg in messages:
-        role = "user" if msg["role"] == "user" else "model"
-        contents.append({
-            "role": role,
-            "parts": [{"text": msg["content"]}]
-        })
+    # Send the latest message (or the whole history if needed)
+    # This replaces all your manual urllib/json/request logic
+    user_msg = messages[-1]["content"] 
+    response = chat.send_message(user_msg)
     
-    data = json.dumps({"contents": contents}).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-    
-    with urllib.request.urlopen(req) as response:
-        result = json.loads(response.read().decode("utf-8"))
-        return result["candidates"][0]["content"]["parts"][0]["text"]
+    return response.text
+
 
 @app.route("/")
 def index():
