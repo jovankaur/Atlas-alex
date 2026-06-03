@@ -100,7 +100,7 @@ let isTyping = false;
 let recognition = null;
 let isRecording = false;
 let voiceUnlocked = false;
-
+let isVoiceMode = false;
 // Unlock audio on first tap anywhere
 document.addEventListener('touchstart', function unlockAudio(){
   if(!voiceUnlocked){
