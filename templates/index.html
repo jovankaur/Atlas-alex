@@ -151,7 +151,8 @@ function addMessage(text, sender){
   div.className = `message ${sender}`;
   div.innerHTML = `
     <div class="avatar ${sender}">${sender==='alex'?'A':'You'}</div>
-    <div class="bubble">${text.replace(/\n/g, '<br>').replace(/\*\*/g, '')}</div>
+    <div class="bubble">${text.replace(/\n/g, '<br>').replace(/\*\*/g, '').replace(/\*/g, '•')}</div>
+
 
   `;
   container.insertBefore(div, typing);
