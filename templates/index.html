@@ -8,73 +8,48 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   
-    body {
+  body {
     font-family: 'Outfit', sans-serif;
     background: radial-gradient(circle at top right, #fce7f3, #ffffff, #e0f2fe);
     min-height: 100vh;
-    margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    width: 100vw;
   }
 
   #chatContainer {
-    width: 95vw;            /* 95% of the viewport width */
-    max-width: 600px;
-    margin: 10px auto;      /* Centers it on the page */
+    display: flex !important; /* Force it to show */
+    flex-direction: column;
+    width: 90vw;
+    max-width: 500px;
+    height: 85vh;
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
-    border-radius: 25px;
-    padding: 20px;          /* Less padding so more content fits */
+    border-radius: 30px;
+    padding: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    height: 90vh;           /* Takes up most of the screen */
-    overflow-y: auto;       /* Allows scrolling */
-}
+    overflow: hidden;
+  }
 
-.message { 
+  .suggestions { 
     display: flex; 
-    gap: 0.5rem; 
-    margin-bottom: 1rem; 
-    width: 100%;
-    justify-content: flex-start;
-}
-
-  
-  .message.user { flex-direction: row-reverse; }
-
-  .bubble {
-    background: white;
-    padding: 12px 18px;
-    border-radius: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    color: #4a5568;
-    max-width: 80%;
+    flex-direction: column; /* Force stack */
+    align-items: center;    /* Center them */
+    gap: 10px; 
+    margin-top: auto; 
   }
 
-  .suggestions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; justify-content: center; }
-  
   .suggestion {
-    background: rgba(255, 255, 255, 0.8);
+    background: white;
+    padding: 10px 20px;
+    border-radius: 15px;
     border: 1px solid rgba(0,0,0,0.1);
-    padding: 10px 15px;
-    border-radius: 12px;
-    cursor: pointer;
-    color: #4a5568;
-  }
-
-  .input-wrap { width: 100%; margin-top: auto; padding-top: 10px; }
-  .input-row { display: flex; gap: 0.75rem; align-items: center; }
-  .input-row input {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(0,0,0,0.1);
-    padding: 12px;
-    border-radius: 10px;
+    width: 80%; /* Consistent width */
+    text-align: center;
   }
 </style>
+
 
 
 </head>
