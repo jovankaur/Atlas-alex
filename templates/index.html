@@ -52,7 +52,7 @@ footer{text-align:center;padding:0.75rem;color:#2a3545;font-size:0.7rem}
   <div class="logo">A</div>
   <div>
     <h1>Atlas AI</h1>
-    Powered by Atlas AI • Available 24/7</p>
+   <p>Powered by Atlas AI • Available 24/7</p>
   </div>
   <div class="status"><div class="dot"></div>Online 24/7</div>
 </header>
@@ -151,7 +151,8 @@ function addMessage(text, sender){
   div.className = `message ${sender}`;
   div.innerHTML = `
     <div class="avatar ${sender}">${sender==='alex'?'A':'You'}</div>
-    <div class="bubble">${text.replace(/\n/g,'<br>')}</div>
+    <div class="bubble">${text.replace(/\n/g, '<br>').replace(/\*\*/g, '')}</div>
+
   `;
   container.insertBefore(div, typing);
   container.scrollTop = container.scrollHeight;
