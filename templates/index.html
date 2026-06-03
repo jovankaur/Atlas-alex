@@ -35,11 +35,14 @@ header p{font-size:0.75rem;color:#8a9bb0;margin-top:2px}
 .suggestion{background:#1a2535;border:1px solid #2a3545;color:#c9a84c;padding:0.4rem 0.9rem;border-radius:99px;font-size:0.8rem;cursor:pointer;transition:all 0.2s;white-space:nowrap}
 .suggestion:hover{background:#c9a84c;color:#000}
 .input-wrap{background:#1a2535;border-top:1px solid #2a3545;padding:1rem 1.5rem;max-width:800px;width:100%;margin:0 auto}
-.input-row{display:flex;gap:0.75rem}
+.input-row{display:flex;gap:0.75rem;align-items:center}
+.mic-btn{background:transparent;border:none;border-radius:8px;padding:0.6rem;cursor:pointer;color:#8a9bb0;transition:color 0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mic-btn:hover{color:#c9a84c}
+.mic-btn.recording{color:#c9a84c;animation:pulse 1s infinite}
 .input-row input{flex:1;background:#0f1923;border:1.5px solid #2a3545;border-radius:12px;padding:0.75rem 1rem;color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s}
 .input-row input:focus{border-color:#c9a84c}
 .input-row input::placeholder{color:#4a5568}
-.send-btn{background:linear-gradient(135deg,#c9a84c,#f5d280);border:none;border-radius:12px;padding:0.75rem 1.25rem;color:#000;font-weight:700;cursor:pointer;font-size:0.9rem;transition:transform 0.15s}
+.send-btn{background:linear-gradient(135deg,#c9a84c,#f5d280);border:none;border-radius:12px;padding:0.75rem 1.25rem;color:#000;font-weight:700;cursor:pointer;font-size:0.9rem;transition:transform 0.15s;flex-shrink:0}
 .send-btn:hover{transform:scale(1.05)}
 footer{text-align:center;padding:0.75rem;color:#2a3545;font-size:0.7rem}
 </style>
@@ -76,7 +79,15 @@ footer{text-align:center;padding:0.75rem;color:#2a3545;font-size:0.7rem}
 
 <div class="input-wrap">
   <div class="input-row">
-    <input type="text" id="userInput" placeholder="Ask Alex anything about real estate..." onkeydown="if(event.key==='Enter')sendMessage()"/>
+    <button class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Voice input">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    </button>
+    <input type="text" id="userInput" placeholder="Ask Alex or tap mic to speak..." onkeydown="if(event.key==='Enter')sendMessage()"/>
     <button class="send-btn" onclick="sendMessage()">Send →</button>
   </div>
 </div>
@@ -86,6 +97,8 @@ footer{text-align:center;padding:0.75rem;color:#2a3545;font-size:0.7rem}
 <script>
 const sessionId = Math.random().toString(36).substr(2,9);
 let isTyping = false;
+let recognition = null;
+let isRecording = false;
 
 function sendSuggestion(text){
   document.getElementById('userInput').value = text;
@@ -111,6 +124,7 @@ async function sendMessage(){
     const data = await res.json();
     showTyping(false);
     addMessage(data.response, 'alex');
+    speakResponse(data.response);
   }catch(e){
     showTyping(false);
     addMessage('Sorry, I had a brief issue. Please try again.', 'alex');
@@ -136,6 +150,56 @@ function showTyping(show){
   typing.style.display = show ? 'flex' : 'none';
   const container = document.getElementById('chatContainer');
   container.scrollTop = container.scrollHeight;
+}
+
+function toggleVoice(){
+  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
+    alert('Voice not supported. Please use Chrome browser.');
+    return;
+  }
+  if(isRecording){
+    recognition.stop();
+    return;
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onstart = function(){
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+  };
+  recognition.onresult = function(event){
+    const transcript = event.results[0][0].transcript;
+    document.getElementById('userInput').value = transcript;
+    sendMessage();
+  };
+  recognition.onend = function(){
+    isRecording = false;
+    document.getElementById('micBtn').classList.remove('recording');
+  };
+  recognition.onerror = function(){
+    isRecording = false;
+    document.getElementById('micBtn').classList.remove('recording');
+  };
+  recognition.start();
+}
+
+function speakResponse(text){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'en-US';
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+  window.speechSynthesis.onvoiceschanged = function(){
+    const voices = window.speechSynthesis.getVoices();
+    const american = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
+                     voices.find(v => v.lang === 'en-US') || voices[0];
+    if(american) utterance.voice = american;
+  };
+  window.speechSynthesis.speak(utterance);
 }
 </script>
 </body>
