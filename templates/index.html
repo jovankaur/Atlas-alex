@@ -118,6 +118,7 @@ function sendSuggestion(text){
 }
 
 async function sendMessage(){
+  isVoiceMode = false;
   if(isTyping) return;
   const input = document.getElementById('userInput');
   const message = input.value.trim();
@@ -164,6 +165,7 @@ function showTyping(show){
 }
 
 function speakResponse(text){
+ if (!isVoiceMode) return;
   if(!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
   const speak = () => {
@@ -187,6 +189,7 @@ function speakResponse(text){
 }
 
 function toggleVoice(){
+  isVoiceMode = true;
   if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
     alert('Voice not supported. Please use Chrome browser.');
     return;
