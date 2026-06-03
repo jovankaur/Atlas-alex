@@ -38,7 +38,7 @@ header p{font-size:0.75rem;color:#8a9bb0;margin-top:2px}
 .input-row{display:flex;gap:0.75rem;align-items:center}
 .mic-btn{background:transparent;border:none;border-radius:8px;padding:0.6rem;cursor:pointer;color:#8a9bb0;transition:color 0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .mic-btn:hover{color:#c9a84c}
-.mic-btn.recording{color:#c9a84c;animation:pulse 1s infinite}
+.mic-btn.recording{color:#ef4444;animation:pulse 1s infinite}
 .input-row input{flex:1;background:#0f1923;border:1.5px solid #2a3545;border-radius:12px;padding:0.75rem 1rem;color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s}
 .input-row input:focus{border-color:#c9a84c}
 .input-row input::placeholder{color:#4a5568}
@@ -99,6 +99,17 @@ const sessionId = Math.random().toString(36).substr(2,9);
 let isTyping = false;
 let recognition = null;
 let isRecording = false;
+let voiceUnlocked = false;
+
+// Unlock audio on first tap anywhere
+document.addEventListener('touchstart', function unlockAudio(){
+  if(!voiceUnlocked){
+    const u = new SpeechSynthesisUtterance('');
+    window.speechSynthesis.speak(u);
+    voiceUnlocked = true;
+  }
+  document.removeEventListener('touchstart', unlockAudio);
+}, {once: true});
 
 function sendSuggestion(text){
   document.getElementById('userInput').value = text;
@@ -152,6 +163,29 @@ function showTyping(show){
   container.scrollTop = container.scrollHeight;
 }
 
+function speakResponse(text){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const speak = () => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+    const voices = window.speechSynthesis.getVoices();
+    const american = voices.find(v => v.lang === 'en-US' && v.name.includes('Samantha')) ||
+                     voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
+                     voices.find(v => v.lang === 'en-US') ||
+                     voices[0];
+    if(american) utterance.voice = american;
+    window.speechSynthesis.speak(utterance);
+  };
+  if(window.speechSynthesis.getVoices().length === 0){
+    window.speechSynthesis.onvoiceschanged = speak;
+  } else {
+    speak();
+  }
+}
+
 function toggleVoice(){
   if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
     alert('Voice not supported. Please use Chrome browser.');
@@ -184,22 +218,6 @@ function toggleVoice(){
     document.getElementById('micBtn').classList.remove('recording');
   };
   recognition.start();
-}
-
-function speakResponse(text){
-  if(!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'en-US';
-  utterance.rate = 1.0;
-  utterance.pitch = 1.0;
-  window.speechSynthesis.onvoiceschanged = function(){
-    const voices = window.speechSynthesis.getVoices();
-    const american = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
-                     voices.find(v => v.lang === 'en-US') || voices[0];
-    if(american) utterance.voice = american;
-  };
-  window.speechSynthesis.speak(utterance);
 }
 </script>
 </body>
