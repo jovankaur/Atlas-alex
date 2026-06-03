@@ -20,27 +20,28 @@
   }
 
   #chatContainer {
-    width: 90%;
+    width: 95vw;            /* 95% of the viewport width */
     max-width: 600px;
+    margin: 10px auto;      /* Centers it on the page */
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
-    border-radius: 30px;
-    padding: 30px;
+    border-radius: 25px;
+    padding: 20px;          /* Less padding so more content fits */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    height: 80vh;
-    overflow: hidden;
-  }
+    height: 90vh;           /* Takes up most of the screen */
+    overflow-y: auto;       /* Allows scrolling */
+}
 
-
-  .message { 
+.message { 
     display: flex; 
-    gap: 0.75rem; 
+    gap: 0.5rem; 
     margin-bottom: 1rem; 
     width: 100%;
     justify-content: flex-start;
-  }
+}
+
   
   .message.user { flex-direction: row-reverse; }
 
