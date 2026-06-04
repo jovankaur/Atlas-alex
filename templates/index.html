@@ -1,28 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Atlas AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  
-  body {
-    font-family: 'Outfit', sans-serif;
-    background: radial-gradient(circle at top right, #fce7f3, #ffffff, #e0f2fe);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-  }
-
-  #chatContainer {
-    display: flex !important; /* Force it to show */
-    flex-direction: column;
-    width: 90vw;
-    max-width: 500px;
     height: 85vh;
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
@@ -191,45 +166,3 @@ function speakResponse(text){
   };
   if(window.speechSynthesis.getVoices().length === 0){
     window.speechSynthesis.onvoiceschanged = speak;
-  } else {
-    speak();
-  }
-}
-
-function toggleVoice(){
-  isVoiceMode = true;
-  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
-    alert('Voice not supported. Please use Chrome browser.');
-    return;
-  }
-  if(isRecording){
-    recognition.stop();
-    return;
-  }
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.lang = 'en-US';
-  recognition.continuous = false;
-  recognition.interimResults = false;
-  recognition.onstart = function(){
-    isRecording = true;
-    document.getElementById('micBtn').classList.add('recording');
-  };
-  recognition.onresult = function(event){
-    const transcript = event.results[0][0].transcript;
-    document.getElementById('userInput').value = transcript;
-    sendMessage();
-  };
-  recognition.onend = function(){
-    isRecording = false;
-    document.getElementById('micBtn').classList.remove('recording');
-  };
-  recognition.onerror = function(){
-    isRecording = false;
-    document.getElementById('micBtn').classList.remove('recording');
-  };
-  recognition.start();
-}
-</script>
-</body>
-</html>
