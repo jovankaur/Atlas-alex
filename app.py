@@ -3,8 +3,13 @@ import os
 import urllib.request
 import urllib.error
 import json
-
+import requests
 app = Flask(__name__)
+
+def send_to_sheet(name, email, phone):
+    url = "https://hook.us2.make.com/h4qz1597vem9fg5ov9jgbtsu19y974b4"
+    data = {"Name": name, "Email": email, "Phone": phone}
+    requests.post(url, json=data)
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
