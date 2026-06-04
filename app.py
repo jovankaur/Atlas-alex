@@ -37,7 +37,7 @@ Remember: You represent a professional real estate agency. Every lead matters.""
 conversation_history = {}
 
 def ask_gemini(history):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
 
     contents = []
     for msg in history:
