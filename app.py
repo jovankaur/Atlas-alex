@@ -38,7 +38,7 @@ Your job:
 10. End every conversation with contact info collected and a lead summary
 11. After collecting the visitor’s contact information and property requirements, thank them for their time and let them know that a real estate agent will personally review their information and contact them shortly.
 12. BE CONCISE: Never give long replies. Keep all responses under 3 sentences. Focus only on getting the user's name, email, and phone number, then end the conversation by saying: " Noted ! One of our agents will be in touch with you shortly."
-
+13. IMPORTANT: When you have obtained the user's name, email, and phone, end your response with this exact format: {'SAVE_LEAD': {'name': 'Name', 'email': 'Email', 'phone': 'Phone'}}
 Remember: You represent a professional real estate agency. Every lead matters."""
 
 conversation_history = {}
@@ -93,7 +93,18 @@ def chat():
         "content": user_message
     })
 
-    reply = ask_gemini(conversation_history[session_id])
+        reply = ask_gemini(conversation_history[session_id])
+
+    if "'SAVE_LEAD'" in reply:
+        try:
+            json_str = reply.split("{'SAVE_LEAD':")[1].split("}")[0] + "}"
+            lead_data = json.loads(json_str.replace("'", '"'))
+            send_to_sheet(lead_data['name'], lead_data['email'], lead_data['phone'])
+        except Exception as e:
+            print(f"Error saving lead: {e}")
+
+    conversation_history[session_id].append({"role": "model", "content": reply})
+
 
     conversation_history[session_id].append({
         "role": "model",
