@@ -15,15 +15,14 @@ header{padding:1rem 1.25rem;display:flex;align-items:center;gap:0.75rem;border-b
 .logo {
   width: 38px;
   height: 38px;
-  background: #000000; /* Solid Black */
-  border-radius: 12px;
+  background: transparent;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  color: #fff;
-  font-size: 0.95rem;
+  font-size: 1.6rem;
   flex-shrink: 0;
+  filter: grayscale(1) brightness(0);
 }
 
 header h1{font-size:0.95rem;font-weight:600;color:#1a1a1a}
@@ -32,38 +31,99 @@ header p{font-size:0.68rem;color:#999;margin-top:1px}
 .dot{width:6px;height:6px;background:#10b981;border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
-.chat-container{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.75rem}
+.chat-container{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;background:radial-gradient(ellipse at 60% 40%,#e8e0f7 0%,#f0eafa 30%,#fce8f5 60%,#eaf0fb 100%)}
 .chat-container::-webkit-scrollbar{width:0}
 
 .message{display:flex;gap:0.5rem;animation:fadeIn 0.3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .message.user{flex-direction:row-reverse}
 .avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0}
-.avatar.alex{background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff}
+.avatar.alex{background:transparent;color:#000;font-size:1.2rem;filter:grayscale(1) brightness(0);}
 .avatar.user{background:#e0f2fe;color:#0369a1}
-.bubble{max-width:78%;padding:0.7rem 0.95rem;border-radius:16px;font-size:0.85rem;line-height:1.6}
-.message.alex .bubble{background:rgba(255,255,255,0.9);color:#1a1a1a;border-top-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
-.message.user .bubble{background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;border-top-right-radius:4px}
+
+/* Inspo-style bubbles: very light lavender-white, black text */
+.bubble{max-width:78%;padding:0.7rem 0.95rem;border-radius:18px;font-size:0.85rem;line-height:1.6;color:#1a1a1a}
+.message.alex .bubble{
+  background:#f5f3fb;
+  color:#1a1a1a;
+  border-top-left-radius:4px;
+  box-shadow:0 2px 8px rgba(120,80,180,0.07);
+  border:1px solid rgba(180,160,220,0.15);
+}
+.message.user .bubble{
+  background:#ede9f8;
+  color:#1a1a1a;
+  border-top-right-radius:4px;
+  box-shadow:0 2px 8px rgba(120,80,180,0.07);
+  border:1px solid rgba(180,160,220,0.18);
+}
 
 .typing{display:none;align-items:center;gap:0.5rem}
-.typing-dots{display:flex;gap:3px;background:rgba(255,255,255,0.9);padding:0.6rem 0.8rem;border-radius:16px;border-top-left-radius:4px}
-.typing-dots span{width:6px;height:6px;background:#a855f7;border-radius:50%;animation:bounce 1.2s infinite}
+.typing-dots{display:flex;gap:3px;background:#f5f3fb;padding:0.6rem 0.8rem;border-radius:16px;border-top-left-radius:4px;border:1px solid rgba(180,160,220,0.15);box-shadow:0 2px 8px rgba(120,80,180,0.07)}
+.typing-dots span{width:6px;height:6px;background:#aaa;border-radius:50%;animation:bounce 1.2s infinite}
 .typing-dots span:nth-child(2){animation-delay:0.2s}
 .typing-dots span:nth-child(3){animation-delay:0.4s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
 
 .suggestions{display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:0.5rem 1rem}
-.suggestion{background:white;border:1px solid rgba(168,85,247,0.2);color:#7c3aed;padding:0.5rem 1rem;border-radius:12px;font-size:0.82rem;font-family:'Outfit',sans-serif;cursor:pointer;width:80%;text-align:center;transition:all 0.2s}
-.suggestion:hover{background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;border-color:transparent}
+.suggestion{background:white;border:1px solid rgba(0,0,0,0.1);color:#1a1a1a;padding:0.5rem 1rem;border-radius:12px;font-size:0.82rem;font-family:'Outfit',sans-serif;cursor:pointer;width:80%;text-align:center;transition:all 0.2s}
+.suggestion:hover{background:#1a1a1a;color:#fff;border-color:transparent}
 
 .input-wrap{padding:0.75rem 1rem 1rem}
-.input-row{display:flex;gap:0.5rem;align-items:center;background:white;border-radius:99px;padding:0.35rem 0.35rem 0.35rem 1rem;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid rgba(168,85,247,0.15)}
-.mic-btn{background:transparent;border:none;padding:0.45rem;cursor:pointer;color:#a855f7;display:flex;align-items:center;flex-shrink:0;transition:color 0.2s}
+.input-row{
+  display:flex;
+  gap:0.5rem;
+  align-items:center;
+  background:white;
+  border-radius:16px;
+  padding:0.5rem 0.5rem 0.5rem 1rem;
+  box-shadow:0 2px 12px rgba(0,0,0,0.08);
+  border:1px solid rgba(0,0,0,0.08);
+}
+
+/* Mic button — black icon like inspo */
+.mic-btn{
+  background:transparent;
+  border:none;
+  padding:0.45rem;
+  cursor:pointer;
+  color:#1a1a1a;
+  display:flex;
+  align-items:center;
+  flex-shrink:0;
+  transition:color 0.2s;
+}
 .mic-btn.recording{color:#ef4444;animation:pulse 1s infinite}
-.input-row input{flex:1;background:transparent;border:none;outline:none;font-family:'Outfit',sans-serif;font-size:0.88rem;color:#1a1a1a}
+
+.input-row input{
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  font-family:'Outfit',sans-serif;
+  font-size:0.88rem;
+  color:#1a1a1a;
+}
 .input-row input::placeholder{color:#bbb}
-.send-btn{background:linear-gradient(135deg,#a855f7,#ec4899);border:none;border-radius:99px;padding:0.55rem 1rem;color:#fff;font-family:'Outfit',sans-serif;font-weight:600;font-size:0.82rem;cursor:pointer;white-space:nowrap;transition:transform 0.15s}
-.send-btn:hover{transform:scale(1.04)}
+
+/* Send button — bare icon inside input bar, like inspo */
+.send-btn{
+  background:transparent;
+  border:none;
+  border-radius:0;
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:opacity 0.15s;
+  color:#6b7280;
+  padding:0;
+}
+.send-btn:hover{opacity:0.7}
+.send-btn svg{width:20px;height:20px}
 
 footer{text-align:center;padding:0.5rem;color:#ccc;font-size:0.65rem;border-top:1px solid rgba(0,0,0,0.05)}
 </style>
@@ -86,14 +146,13 @@ footer{text-align:center;padding:0.5rem;color:#ccc;font-size:0.65rem;border-top:
       <div class="bubble">Hi there! I'm Alex, your AI real estate assistant. 👋<br><br>I'm here to help you 24/7 with buying, selling, renting, relocating or investing.<br><br>What brings you here today?</div>
     </div>
     <div class="typing" id="typing">
-      <div class="avatar alex">✨</div>
+      <div class="avatar alex" style="background:transparent;filter:grayscale(1) brightness(0);">✨</div>
       <div class="typing-dots"><span></span><span></span><span></span></div>
     </div>
   </div>
 
   <div class="suggestions" id="suggestions">
     <button class="suggestion" onclick="sendSuggestion('I want to buy or sell a home')">🏠 Buy or Sell a Home</button>
-
     <button class="suggestion" onclick="sendSuggestion('I am relocating')">✈️ Relocating</button>
     <button class="suggestion" onclick="sendSuggestion('I want to invest in property')">📈 Invest</button>
     <button class="suggestion" onclick="sendSuggestion('Show me luxury homes')">💎 Luxury homes</button>
@@ -102,6 +161,7 @@ footer{text-align:center;padding:0.5rem;color:#ccc;font-size:0.65rem;border-top:
 
   <div class="input-wrap">
     <div class="input-row">
+      <!-- Mic icon in black -->
       <button class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Voice input">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -110,8 +170,14 @@ footer{text-align:center;padding:0.5rem;color:#ccc;font-size:0.65rem;border-top:
           <line x1="8" y1="23" x2="16" y2="23"/>
         </svg>
       </button>
-      <input type="text" id="userInput" placeholder="Ask Alex or tap mic..." onkeydown="if(event.key==='Enter')sendMessage()"/>
-      <button class="send-btn" onclick="sendMessage()">Send →</button>
+      <input type="text" id="userInput" placeholder="Ask me anything about your projects..." onkeydown="if(event.key==='Enter')sendMessage()"/>
+      <!-- Send button — paper plane like inspo -->
+      <button class="send-btn" onclick="sendMessage()" title="Send">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 2 11 13 2 9 22 2"/>
+          <polyline points="22 2 15 22 11 13"/>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -173,7 +239,7 @@ function addMessage(text, sender){
   const div = document.createElement('div');
   div.className = `message ${sender}`;
   div.innerHTML = `
-    <div class="avatar ${sender}">${sender==='alex'?'A':'You'}</div>
+    <div class="avatar ${sender}">${sender==='alex'?'✨':'You'}</div>
     <div class="bubble">${text.replace(/\n/g,'<br>').replace(/\*\*/g,'').replace(/\*/g,'•')}</div>
   `;
   container.insertBefore(div, typing);
