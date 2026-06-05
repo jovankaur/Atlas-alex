@@ -1,15 +1,37 @@
 import os
-import json
+import sys
+import subprocess
+
+# ==========================================
+# 1. AUTO-INSTALL MISSING LIBRARIES
+# ==========================================
+def install_and_import(package):
+    try:
+        __import__(package)
+    except ImportError:
+        print(f"Installing missing package: {package}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# Check and install required packages automatically
+install_and_import("flask")
+install_and_import("requests")
+install_and_import("urllib3")
+
+# Import them safely after confirming installation
 import requests
 import urllib3
 from flask import Flask, render_template, request, jsonify
 
-# This disables the warning that pops up when we bypass SSL verification
+# ==========================================
+# 2. FLASK APP & API SETUP
+# ==========================================
+
+# Disable the red warning text for bypassing SSL verification
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 app = Flask(__name__)
 
-# Put your API key here directly if environment variables are failing
+# Replace this string with your actual Gemini API Key
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "PASTE_YOUR_API_KEY_HERE")
 
 SYSTEM_PROMPT = """You are Alex, a professional AI real estate assistant powered by Atlas AI. You help website visitors 24/7 with all real estate needs.
@@ -41,7 +63,8 @@ Remember: You represent a professional real estate agency. Every lead matters.""
 conversation_history = {}
 
 def ask_gemini(history):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    # Using your Cloudflare Worker to bypass the ISP block completely
+    url = f"https://gemini-proxy.parjovanpreetkaur.workers.dev/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     # Format the history for the API
     contents = []
@@ -54,8 +77,8 @@ def ask_gemini(history):
     payload = {"contents": contents}
 
     try:
-        # verify=False is the magic trick here. It stops your ISP from blocking the SSL handshake.
-        # timeout=60 gives it enough time to connect on slower local networks.
+        # verify=False prevents local certificate errors
+        # timeout=60 handles slower network connections
         response = requests.post(
             url, 
             json=payload, 
@@ -64,20 +87,22 @@ def ask_gemini(history):
             verify=False 
         )
         
-        # If the request fails, this will throw an error we can catch
         response.raise_for_status()
-        
         data = response.json()
         return data["candidates"][0]["content"]["parts"][0]["text"]
         
     except requests.exceptions.HTTPError as errh:
-        return f"HTTP Error: {errh}"
-    except requests.exceptions.ConnectionError as errc:
-        return f"Error Connecting: Your ISP might be completely blocking the IP. Use a proxy."
-    except requests.exceptions.Timeout as errt:
-        return f"Timeout Error: The request took too long."
+        return f"HTTP Error: {errh} - Check if your API key is correct."
+    except requests.exceptions.ConnectionError:
+        return "Error Connecting: Please check your internet connection."
+    except requests.exceptions.Timeout:
+        return "Timeout Error: The request took too long. Try again."
     except Exception as e:
         return f"Error: {str(e)}"
+
+# ==========================================
+# 3. FLASK ROUTES
+# ==========================================
 
 @app.route("/")
 def index():
@@ -89,23 +114,19 @@ def chat():
     user_message = data.get("message", "")
     session_id = data.get("session_id", "default")
 
-    # Initialize the history if it's a new session
     if session_id not in conversation_history:
         conversation_history[session_id] = [
             {"role": "user", "content": SYSTEM_PROMPT},
             {"role": "model", "content": "Understood. I am Alex, a professional real estate AI assistant. Ready to help visitors 24/7."}
         ]
 
-    # Add user message to history
     conversation_history[session_id].append({
         "role": "user",
         "content": user_message
     })
 
-    # Get the AI reply
     reply = ask_gemini(conversation_history[session_id])
 
-    # Add AI reply to history
     conversation_history[session_id].append({
         "role": "model",
         "content": reply
