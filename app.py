@@ -135,7 +135,8 @@ FULL CONVERSATION:
         print(f"Email failed: {e}")
 
 def call_gemini(api_key, contents):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+    url = f"https://gemini-proxy.parjovanpreetkaur.workers.dev/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+
     payload = {"contents": contents}
     response = requests.post(
         url,
