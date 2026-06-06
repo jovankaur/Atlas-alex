@@ -78,9 +78,20 @@ def extract_lead_info(history):
         "phone": phone[-1] if phone else None,
     }
 
-def is_valid_phone(phone):
+def format_phone(phone):
     digits = re.sub(r"\D", "", phone)
-    return len(digits) >= 10
+
+    # US/Canada
+    if len(digits) == 10:
+        return f"+1 ({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+
+    # International numbers
+    if len(digits) > 10:
+        country = digits[:-10]
+        local = digits[-10:]
+        return f"+{country} ({local[:3]}) {local[3:6]}-{local[6:]}"
+
+    return phone
 
 def send_lead_email(session_id, history):
     if not SMTP_EMAIL or not AGENT_EMAIL or not SMTP_PASSWORD:
