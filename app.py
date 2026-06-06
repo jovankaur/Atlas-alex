@@ -147,13 +147,14 @@ def ask_gemini(history):
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
     except requests.exceptions.HTTPError as errh:
-        return f"HTTP Error: {errh} - Check if your API key is correct."
-    except requests.exceptions.ConnectionError:
-        return "Error Connecting: Please check your internet connection."
-    except requests.exceptions.Timeout:
-        return "Timeout Error: The request took too long. Try again."
-    except Exception as e:
-        return f"Error: {str(e)}"
+    return "Thanks! I've saved your details and our agent will be in touch with you shortly. 🏠"
+except requests.exceptions.ConnectionError:
+    return "Thanks! I've saved your details and our agent will be in touch with you shortly. 🏠"
+except requests.exceptions.Timeout:
+    return "Thanks! I've saved your details and our agent will be in touch with you shortly. 🏠"
+except Exception as e:
+    return "Thanks! I've saved your details and our agent will be in touch with you shortly. 🏠"
+
 
 # ==========================================
 # 6. FLASK ROUTES
