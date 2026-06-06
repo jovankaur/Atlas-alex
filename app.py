@@ -6,9 +6,6 @@ import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# ==========================================
-# 1. AUTO-INSTALL MISSING LIBRARIES
-# ==========================================
 def install_and_import(package):
     try:
         __import__(package)
@@ -28,14 +25,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 app = Flask(__name__)
 
-# ==========================================
-# 2. CONFIG
-# ==========================================
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "PASTE_YOUR_API_KEY_HERE")
-
-SMTP_EMAIL = os.environ.get("SMTP_EMAIL")       # your Gmail
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD") # Gmail App Password
-AGENT_EMAIL = os.environ.get("AGENT_EMAIL")     # owner's email
+SMTP_EMAIL = os.environ.get("SMTP_EMAIL")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD")
+AGENT_EMAIL = os.environ.get("AGENT_EMAIL")
 
 SYSTEM_PROMPT = """You are Alex, a professional real estate AI assistant. You are direct, warm and efficient. Like a smart receptionist, not a salesperson.
 
@@ -51,24 +44,20 @@ Your job:
 Rules:
 - Maximum 2 sentences per response
 - One question at a time
-- Never say "fantastic", "great", "wonderful", "excellent" or any fake praise
+- Never say fantastic, great, wonderful, excellent or any fake praise
 - Never repeat back everything they said
 - Respond in whatever language the visitor uses
 - Be warm but brief — like texting a helpful friend
-- Show lead score only internally, never show it in chat
-- Once you have name, email and phone — stop asking questions and say: "Perfect. Our agent will be in touch with you shortly!"
-- If the visitor asks a real estate question, answer it briefly and then continue the qualification process.
-- If the visitor asks something unrelated to real estate, politely redirect them back to their property needs.
+- Never show lead score in chat
+- Once you have name, email and phone — say: "Perfect. Our agent will be in touch with you shortly!"
+- If the visitor asks a real estate question, answer briefly then continue qualification
+- If unrelated to real estate, politely redirect back to property needs
 
 Remember: Every second counts. Keep it short."""
-
 
 conversation_history = {}
 emailed_sessions = set()
 
-# ==========================================
-# 3. LEAD EXTRACTION
-# ==========================================
 def extract_lead_info(history):
     full_text = " ".join([m["content"] for m in history])
     email = re.findall(r'[\w.-]+@[\w.-]+\.\w+', full_text)
@@ -78,9 +67,6 @@ def extract_lead_info(history):
         "phone": phone[-1] if phone else None,
     }
 
-# ==========================================
-# 4. EMAIL SENDER
-# ==========================================
 def send_lead_email(session_id, history):
     if not SMTP_EMAIL or not AGENT_EMAIL or not SMTP_PASSWORD:
         print("Email config missing. Skipping email.")
@@ -108,7 +94,7 @@ FULL CONVERSATION:
     msg = MIMEMultipart()
     msg["From"] = SMTP_EMAIL
     msg["To"] = AGENT_EMAIL
-    msg["Subject"] = "🏠 New Lead from Alex - Real Estate Chatbot"
+    msg["Subject"] = "New Lead from Alex - Real Estate Chatbot"
     msg.attach(MIMEText(body, "plain"))
 
     try:
@@ -119,9 +105,6 @@ FULL CONVERSATION:
     except Exception as e:
         print(f"Email failed: {e}")
 
-# ==========================================
-# 5. GEMINI API
-# ==========================================
 def ask_gemini(history):
     url = f"https://gemini-proxy.parjovanpreetkaur.workers.dev/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
 
@@ -146,19 +129,15 @@ def ask_gemini(history):
         data = response.json()
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
-   except requests.exceptions.HTTPError as errh:
-    return "Thanks! I've saved your details and our agent will be in touch with you shortly."
-   except requests.exceptions.ConnectionError:
-    return "Thanks! I've saved your details and our agent will be in touch with you shortly."
-   except requests.exceptions.Timeout:
-    return "Thanks! I've saved your details and our agent will be in touch with you shortly."
-   except Exception as e:
-    return "Thanks! I've saved your details and our agent will be in touch with you shortly."
+    except requests.exceptions.HTTPError:
+        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
+    except requests.exceptions.ConnectionError:
+        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
+    except requests.exceptions.Timeout:
+        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
+    except Exception:
+        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
 
-
-# ==========================================
-# 6. FLASK ROUTES
-# ==========================================
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -187,7 +166,6 @@ def chat():
         "content": reply
     })
 
-    # Send email once when both email and phone are detected
     lead = extract_lead_info(conversation_history[session_id])
     if lead["email"] and lead["phone"] and session_id not in emailed_sessions:
         send_lead_email(session_id, conversation_history[session_id])
