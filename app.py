@@ -97,7 +97,6 @@ def send_lead_email(session_id, history):
     if not SMTP_EMAIL or not AGENT_EMAIL or not SMTP_PASSWORD:
         print("Email config missing. Skipping email.")
         return
-
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     lead = extract_lead_info(history)
 
@@ -112,7 +111,7 @@ NEW LEAD FROM ALEX CHATBOT
 Name detected:   {lead['name'] or 'Not provided'}
 Email detected:  {lead['email'] or 'Not provided'}
 Phone detected:  {lead['phone'] or 'Not provided'}
-Time:            {timestamp}
+Time detected:   {timestamp}
 Session ID:      {session_id}
 
 FULL CONVERSATION:
@@ -135,7 +134,7 @@ FULL CONVERSATION:
         print(f"Email failed: {e}")
 
 def ask_gemini(history):
-    url = f"https://gemini-proxy.parjovanpreetkaur.workers.dev/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
 
     contents = []
     for msg in history:
@@ -158,14 +157,14 @@ def ask_gemini(history):
         data = response.json()
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
-    except requests.exceptions.HTTPError:
-        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
-    except requests.exceptions.ConnectionError:
-        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
-    except requests.exceptions.Timeout:
-        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
-    except Exception:
-        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
+    except requests.exceptions.HTTPError as errh:
+        return f"HTTP ERROR: {response.text}"
+    except requests.exceptions.ConnectionError as e:
+        return f"CONNECTION ERROR: {str(e)}"
+    except requests.exceptions.Timeout as e:
+        return f"TIMEOUT ERROR: {str(e)}"
+    except Exception as e:
+        return f"GENERAL ERROR: {str(e)}"
 
 @app.route("/")
 def index():
