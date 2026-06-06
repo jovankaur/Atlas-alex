@@ -60,13 +60,28 @@ emailed_sessions = set()
 
 def extract_lead_info(history):
     full_text = " ".join([m["content"] for m in history])
+
     email = re.findall(r'[\w.-]+@[\w.-]+\.\w+', full_text)
     phone = re.findall(r'[\+\(]?[0-9][0-9\s\-\(\)]{7,}[0-9]', full_text)
+
+    name = None
+
+    for msg in history:
+        if msg["role"] == "user":
+            text = msg["content"].strip()
+
+            if (
+                len(text.split()) <= 3
+                and "@" not in text
+                and not any(char.isdigit() for char in text)
+            ):
+                name = text
+
     return {
+        "name": name,
         "email": email[-1] if email else None,
         "phone": phone[-1] if phone else None,
     }
-
 def send_lead_email(session_id, history):
     if not SMTP_EMAIL or not AGENT_EMAIL or not SMTP_PASSWORD:
         print("Email config missing. Skipping email.")
@@ -82,10 +97,10 @@ def send_lead_email(session_id, history):
     body = f"""
 NEW LEAD FROM ALEX CHATBOT
 ==========================
+Name detected:   {lead['name'] or 'Not provided'}
 Email detected:  {lead['email'] or 'Not provided'}
 Phone detected:  {lead['phone'] or 'Not provided'}
 Session ID:      {session_id}
-
 FULL CONVERSATION:
 ------------------
 {transcript}
