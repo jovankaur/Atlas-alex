@@ -98,7 +98,7 @@ def send_lead_email(session_id, history):
     if not SMTP_EMAIL or not AGENT_EMAIL or not SMTP_PASSWORD:
         print("Email config missing. Skipping email.")
         return
-
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     lead = extract_lead_info(history)
 
     transcript = ""
@@ -112,6 +112,8 @@ NEW LEAD FROM ALEX CHATBOT
 Name detected:   {lead['name'] or 'Not provided'}
 Email detected:  {lead['email'] or 'Not provided'}
 Phone detected:  {lead['phone'] or 'Not provided'}
+
+Time detected:   {timestamp}
 Session ID:      {session_id}
 
 FULL CONVERSATION:
