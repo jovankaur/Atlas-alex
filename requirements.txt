@@ -1,3 +1,6 @@
 flask
 google-generativeai
 gunicorn
+schedule
+beautifulsoup4
+requests
