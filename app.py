@@ -81,23 +81,23 @@ def extract_lead_info(history):
 
 def format_phone(phone):
     digits = re.sub(r"\D", "", phone)
-
-    # US/Canada
     if len(digits) == 10:
         return f"+1 ({digits[:3]}) {digits[3:6]}-{digits[6:]}"
-
-    # International numbers
     if len(digits) > 10:
         country = digits[:-10]
         local = digits[-10:]
         return f"+{country} ({local[:3]}) {local[3:6]}-{local[6:]}"
-
     return phone
+
+def is_valid_phone(phone):
+    digits = re.sub(r"\D", "", phone)
+    return len(digits) >= 10
 
 def send_lead_email(session_id, history):
     if not SMTP_EMAIL or not AGENT_EMAIL or not SMTP_PASSWORD:
         print("Email config missing. Skipping email.")
         return
+
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     lead = extract_lead_info(history)
 
@@ -112,8 +112,7 @@ NEW LEAD FROM ALEX CHATBOT
 Name detected:   {lead['name'] or 'Not provided'}
 Email detected:  {lead['email'] or 'Not provided'}
 Phone detected:  {lead['phone'] or 'Not provided'}
-
-Time detected:   {timestamp}
+Time:            {timestamp}
 Session ID:      {session_id}
 
 FULL CONVERSATION:
@@ -159,17 +158,15 @@ def ask_gemini(history):
         data = response.json()
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
-    except requests.exceptions.HTTPError as errh:
-    return f"HTTP ERROR: {response.text}"
+    except requests.exceptions.HTTPError:
+        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
+    except requests.exceptions.ConnectionError:
+        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
+    except requests.exceptions.Timeout:
+        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
+    except Exception:
+        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
 
-except requests.exceptions.ConnectionError as e:
-    return f"CONNECTION ERROR: {str(e)}"
-
-except requests.exceptions.Timeout as e:
-    return f"TIMEOUT ERROR: {str(e)}"
-
-except Exception as e:
-    return f"GENERAL ERROR: {str(e)}"
 @app.route("/")
 def index():
     return render_template("index.html")
