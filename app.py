@@ -78,10 +78,17 @@ def extract_lead_info(history):
                 name = text
 
     return {
-        "name": name,
-        "email": email[-1] if email else None,
-        "phone": phone[-1] if phone else None,
-    }
+    "name": name,
+    "email": email[-1] if email else None,
+    "phone": phone[-1] if phone else None,
+}
+
+
+def is_valid_phone(phone):
+    digits = re.sub(r"\D", "", phone)
+    return len(digits) >= 10
+
+
 def send_lead_email(session_id, history):
     if not SMTP_EMAIL or not AGENT_EMAIL or not SMTP_PASSWORD:
         print("Email config missing. Skipping email.")
@@ -182,9 +189,15 @@ def chat():
     })
 
     lead = extract_lead_info(conversation_history[session_id])
-    if lead["email"] and lead["phone"] and session_id not in emailed_sessions:
-        send_lead_email(session_id, conversation_history[session_id])
-        emailed_sessions.add(session_id)
+
+if (
+    lead["email"]
+    and lead["phone"]
+    and is_valid_phone(lead["phone"])
+    and session_id not in emailed_sessions
+):
+    send_lead_email(session_id, conversation_history[session_id])
+    emailed_sessions.add(session_id)
 
     return jsonify({"response": reply})
 
