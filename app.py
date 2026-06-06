@@ -75,7 +75,7 @@ def extract_lead_info(history):
     return {
         "name": name,
         "email": email[-1] if email else None,
-        "phone": phone[-1] if phone else None,
+        "phone": format_phone(phone[-1]) if phone else None,
     }
 
 def format_phone(phone):
