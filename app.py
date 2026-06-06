@@ -159,15 +159,17 @@ def ask_gemini(history):
         data = response.json()
         return data["candidates"][0]["content"]["parts"][0]["text"]
 
-    except requests.exceptions.HTTPError:
-        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
-    except requests.exceptions.ConnectionError:
-        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
-    except requests.exceptions.Timeout:
-        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
-    except Exception:
-        return "Thanks! I've saved your details and our agent will be in touch with you shortly."
+    except requests.exceptions.HTTPError as errh:
+    return f"HTTP ERROR: {response.text}"
 
+except requests.exceptions.ConnectionError as e:
+    return f"CONNECTION ERROR: {str(e)}"
+
+except requests.exceptions.Timeout as e:
+    return f"TIMEOUT ERROR: {str(e)}"
+
+except Exception as e:
+    return f"GENERAL ERROR: {str(e)}"
 @app.route("/")
 def index():
     return render_template("index.html")
